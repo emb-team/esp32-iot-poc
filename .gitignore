@@ -17,3 +17,6 @@ GPATH
 
 # build artifacts
 build/
+
+# config
+sdkconfig

@@ -1,0 +1,96 @@
+MONITOR
+--- idf_monitor on /dev/ttyUSB0 115200 ---
+--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H ---
+ets Jun  8 2016 00:22:57
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0018,len:4
+load:0x3fff001c,len:6176
+ho 0 tail 12 room 4
+load:0x40078000,len:10180
+load:0x40080400,len:6640
+entry 0x40080760
+I (31) boot: ESP-IDF v3.2 2nd stage bootloader
+I (31) boot: compile time 16:05:25
+I (31) boot: Enabling RNG early entropy source...
+I (35) boot: SPI Speed      : 40MHz
+I (39) boot: SPI Mode       : DIO
+I (43) boot: SPI Flash Size : 4MB
+I (47) boot: Partition Table:
+I (51) boot: ## Label            Usage          Type ST Offset   Length
+I (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (73) boot:  2 factory          factory app      00 00 00010000 00100000
+I (81) boot: End of partition table
+I (85) esp_image: segment 0: paddr=0x00010020 vaddr=0x3f400020 size=0x174d0 ( 95440) map
+I (127) esp_image: segment 1: paddr=0x000274f8 vaddr=0x3ffb0000 size=0x02ec0 ( 11968) load
+I (132) esp_image: segment 2: paddr=0x0002a3c0 vaddr=0x40080000 size=0x00400 (  1024) load
+0x40080000: _WindowOverflow4 at /home/evg/projects/esp/esp-idf/components/freertos/xtensa_vectors.S:1779
+                                                                                                                                      
+I (134) esp_image: segment 3: paddr=0x0002a7c8 vaddr=0x40080400 size=0x05848 ( 22600) load
+I (152) esp_image: segment 4: paddr=0x00030018 vaddr=0x400d0018 size=0x6af18 (438040) map
+0x400d0018: _stext at ??:?
+                                                                                                                                      
+I (306) esp_image: segment 5: paddr=0x0009af38 vaddr=0x40085c48 size=0x0bab0 ( 47792) load
+0x40085c48: lmacTxFrame at ??:?
+                                                                                                                                      
+I (336) boot: Loaded app from partition at offset 0x10000
+I (336) boot: Disabling RNG early entropy source...
+I (337) cpu_start: Pro cpu up.
+I (340) cpu_start: Starting app cpu, entry point is 0x40081018
+0x40081018: call_start_cpu1 at /home/evg/projects/esp/esp-idf/components/esp32/cpu_start.c:246
+                                                                                                                                      
+I (0) cpu_start: App cpu up.
+I (351) heap_init: Initializing. RAM available for dynamic allocation:
+I (358) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (364) heap_init: At 3FFB8DF0 len 00027210 (156 KiB): DRAM
+I (370) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (376) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (383) heap_init: At 400916F8 len 0000E908 (58 KiB): IRAM
+I (389) cpu_start: Pro cpu start user code
+I (72) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+I (156) POC: ESP_WIFI_MODE_AP_STA
+I (156) wifi: wifi driver task: 3ffc0be4, prio:23, stack:3584, core=0
+I (156) wifi: wifi firmware version: 9415913
+I (156) wifi: config NVS flash: enabled
+I (166) wifi: config nano formating: disabled
+I (166) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
+I (176) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
+I (206) wifi: Init dynamic tx buffer num: 32
+I (206) wifi: Init data frame dynamic rx buffer num: 32
+I (206) wifi: Init management frame dynamic rx buffer num: 32
+I (216) wifi: Init static rx buffer size: 1600
+I (216) wifi: Init static rx buffer num: 10
+I (216) wifi: Init dynamic rx buffer num: 32
+I (296) phy: phy_version: 4008, c9ae59f, Jan 25 2019, 16:54:06, 0, 0
+I (296) wifi: mode : sta (24:6f:28:de:79:94) + softAP (24:6f:28:de:79:95)
+I (306) wifi: Init max length of beacon: 752/752
+I (306) wifi: Init max length of beacon: 752/752
+I (306) POC: wifi_init_ap_sta finished. ssid:TestAP password:nopassword
+I (306) POC: STA_START event
+                                                                                                                                      
+I (21296) wifi: n:1 0, o:1 0, ap:1 1, sta:0 0, prof:1
+I (21296) wifi: station: 70:70:0d:cc:70:23 join, AID=1, bgn, 20
+I (21316) POC: station:70:70:0d:cc:70:23 join, AID=1
+I (21316) POC: Starting server on address: port: '80'
+I (21316) POC: Registering URI handlers
+I (21366) tcpip_adapter: softAP assign IP to station,IP is: 192.168.4.2
+I (22506) tcpip_adapter: softAP assign IP to station,IP is: 192.168.4.2
+I (49316) POC: Connecting to AP [PYUR C5A10] ...
+I (52156) wifi: n:1 1, o:1 0, ap:1 1, sta:1 0, prof:1
+I (53136) wifi: state: init -> auth (b0)
+I (53146) wifi: state: auth -> assoc (0)
+I (53156) wifi: state: assoc -> run (10)
+I (53306) wifi: connected with PYUR C5A10, channel 1
+I (53316) wifi: pm start, type: 1
+
+I (56156) event: sta ip: 192.168.0.6, mask: 255.255.255.0, gw: 192.168.0.1
+I (56156) POC: got ip:192.168.0.6
+I (60876) POC: Skip POST request. Already connected to [PYUR C5A10]
+W (60876) httpd_uri: httpd_uri: uri handler execution failed
+I (70226) POC: Skip POST request. Already connected to [PYUR C5A10]
+W (70236) httpd_uri: httpd_uri: uri handler execution failed

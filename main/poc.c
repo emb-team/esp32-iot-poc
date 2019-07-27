@@ -25,11 +25,12 @@
 /* The examples use WiFi configuration that you can set via 'make menuconfig'.
 
    If you'd rather not, just change the below entries to strings with
-   the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
+   the config you want - ie #define POC_WIFI_SSID "mywifissid"
 */
-#define EXAMPLE_ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
-#define EXAMPLE_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
-#define EXAMPLE_MAX_STA_CONN       CONFIG_MAX_STA_CONN
+#define POC_ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
+#define POC_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
+#define POC_WIFI_MAX_STA_CONN  CONFIG_WIFI_MAX_STA_CONN
+#define POC_WIFI_MAX_APS       CONFIG_WIFI_MAX_APS_PER_SCAN
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
@@ -38,8 +39,6 @@ static EventGroupHandle_t s_wifi_event_group;
 struct poc_data *g_data;
 
 static const char *TAG = "POC";
-
-#define MAX_APS 20
 
 // From auth_mode code to string
 static char* getAuthModeName(wifi_auth_mode_t auth_mode) {
@@ -58,7 +57,7 @@ static char* getAuthModeName(wifi_auth_mode_t auth_mode) {
 
 static int wifi_scan_aps(wifi_ap_record_t *ap_records)
 {
-    uint16_t ap_num = MAX_APS;
+    uint16_t ap_num = POC_WIFI_MAX_APS;
     wifi_scan_config_t wifi_scan_config = {
             .ssid = 0,
             .bssid = 0, 
@@ -80,11 +79,11 @@ esp_err_t uri_get_handler(httpd_req_t *req)
 {
     char buf[200];
     uint16_t ap_num;
-    wifi_ap_record_t ap_records[MAX_APS];
+    wifi_ap_record_t ap_records[POC_WIFI_MAX_APS];
 
     // Get the list of WiFi APs
     ap_num = wifi_scan_aps(ap_records);
-    if (ap_num >= MAX_APS) {
+    if (ap_num >= POC_WIFI_MAX_APS) {
 	return ESP_FAIL;
     }
 
@@ -331,14 +330,14 @@ void wifi_init_ap_sta(httpd_handle_t *server)
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
     // Config for SoftAP mode
-    strncpy((char *) ap->ap.ssid, EXAMPLE_ESP_WIFI_SSID, sizeof(ap->ap.ssid));
-    ap->ap.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID);
-    strncpy((char *) ap->ap.password, EXAMPLE_ESP_WIFI_PASS, sizeof(ap->ap.password));
-    ap->ap.max_connection = EXAMPLE_MAX_STA_CONN;
+    strncpy((char *) ap->ap.ssid, POC_ESP_WIFI_SSID, sizeof(ap->ap.ssid));
+    ap->ap.ssid_len = strlen(POC_ESP_WIFI_SSID);
+    strncpy((char *) ap->ap.password, POC_ESP_WIFI_PASS, sizeof(ap->ap.password));
+    ap->ap.max_connection = POC_WIFI_MAX_STA_CONN;
     ap->ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
 
     // if there is no password make AP open
-    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+    if (strlen(POC_ESP_WIFI_PASS) == 0) {
         ap->ap.authmode = WIFI_AUTH_OPEN;
     }
 
@@ -353,7 +352,7 @@ void wifi_init_ap_sta(httpd_handle_t *server)
     g_data->wifi_ap_state = WIFI_AP_STARTED;
 
     ESP_LOGI(TAG, "wifi_init_ap_sta finished. ssid:%s password:%s",
-             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+             POC_ESP_WIFI_SSID, POC_ESP_WIFI_PASS);
 }
 
 int app_main()

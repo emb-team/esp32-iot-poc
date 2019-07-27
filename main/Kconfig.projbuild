@@ -12,9 +12,16 @@ config ESP_WIFI_PASSWORD
     help
 	WiFi password (WPA or WPA2) for the example to use.
 		
-config MAX_STA_CONN
+config WIFI_MAX_STA_CONN
     int "Maximal STA connections"
     default 4
     help
 	Max number of the STA connects to AP.
+
+`config WIFI_MAX_APS_PER_SCAN
+    int "Maximum number of Access Points"
+    default 20
+    help
+        Maximum number of Access Points to be shown per WiFi scan.
+
 endmenu

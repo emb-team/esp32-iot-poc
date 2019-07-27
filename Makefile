@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := poc 
+PROJECT_NAME := poc
 
 include $(IDF_PATH)/make/project.mk
 

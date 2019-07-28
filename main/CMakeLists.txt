@@ -1,5 +1,8 @@
 set(COMPONENT_SRCS "poc.c"
-		"uart.c")
+		"uart.c"
+		"http_server.c"
+		"wifi.c"
+		"ota.c")
 
 set(COMPONENT_ADD_INCLUDEDIRS ".")
 

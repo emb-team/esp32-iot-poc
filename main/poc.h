@@ -2,10 +2,20 @@
 #define _H_POC_H_
 
 #include "freertos/event_groups.h"
-#include "esp_wifi.h"
+#include "esp_log.h"
 #include "esp_http_server.h"
 
-#include "uart.h"
+#include "wifi.h"
+
+/* The examples use WiFi configuration that you can set via 'make menuconfig'.
+
+   If you'd rather not, just change the below entries to strings with
+   the config you want - ie #define POC_WIFI_SSID "mywifissid"
+*/
+#define POC_ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
+#define POC_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
+#define POC_WIFI_MAX_STA_CONN  CONFIG_WIFI_MAX_STA_CONN
+#define POC_WIFI_MAX_APS       CONFIG_WIFI_MAX_APS_PER_SCAN
 
 /**
  * @brief   WiFi STA status

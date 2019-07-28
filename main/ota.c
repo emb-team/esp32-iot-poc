@@ -11,8 +11,8 @@
 #include "ota.h"
 #include "poc.h"
 
-extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
+extern const uint8_t server_ota_cert_pem_start[] asm("_binary_ota_ca_cert_pem_start");
+extern const uint8_t server_ota_cert_pem_end[] asm("_binary_ota_ca_cert_pem_end");
 
 static const char *TAG = "OTA: ";
 
@@ -57,7 +57,7 @@ static void ota_runner(void * p)
 
     esp_http_client_config_t config = {
         .url = CONFIG_FIRMWARE_UPDATE_URL,
-        .cert_pem = (char *)server_cert_pem_start,
+        .cert_pem = (char *)server_ota_cert_pem_start,
         .event_handler = https_event_handler,
     };
 

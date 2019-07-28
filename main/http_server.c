@@ -81,7 +81,7 @@ static esp_err_t uri_post_handler(httpd_req_t *req)
 	}
     }
 
-    ESP_LOGI(TAG,"Received data from user: %s", buf);
+    ESP_LOGD(TAG,"Received data from user: %s", buf);
 
     ssid = strstr(buf, "ssid=");
     if (!ssid) {

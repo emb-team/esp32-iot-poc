@@ -18,10 +18,16 @@ config WIFI_MAX_STA_CONN
     help
 	Max number of the STA connects to AP.
 
-`config WIFI_MAX_APS_PER_SCAN
+config WIFI_MAX_APS_PER_SCAN
     int "Maximum number of Access Points"
     default 20
     help
         Maximum number of Access Points to be shown per WiFi scan.
+
+config FIRMWARE_UPDATE_URL
+    string "Firmware update URL endpoint"
+    default "https://192.168.0.7/download/poc_v2.bin"
+    help
+        URL of server which hosts the firmware image.
 
 endmenu

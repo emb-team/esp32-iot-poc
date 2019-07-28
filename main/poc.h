@@ -1,6 +1,8 @@
 #ifndef _H_POC_H_
 #define _H_POC_H_
 
+#include "freertos/event_groups.h"
+
 /**
  * @brief   WiFi STA status
  */
@@ -23,6 +25,9 @@ typedef enum {
  */
 struct poc_data
 {
+    /* Http server handle */
+    httpd_handle_t server;
+
     /* WiFi AP Config */
     wifi_config_t wifi_ap_config;
 
@@ -34,6 +39,9 @@ struct poc_data
 
     /* State of WiFi Station */
     wifi_sta_state_t wifi_sta_state;
+
+    /* Event group to signal */
+    EventGroupHandle_t wifi_event_group;
 };
 
 #endif /* _H_POC_H_ */

@@ -9,18 +9,24 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
+
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include <esp_http_server.h>
-	
+#include "esp_http_server.h"
+#include "esp_http_client.h"
+#include "esp_https_ota.h"
+#include "freertos/portable.h"
+
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
 #include "poc.h"
+
+extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
+extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 /* The examples use WiFi configuration that you can set via 'make menuconfig'.
 
@@ -31,9 +37,6 @@
 #define POC_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
 #define POC_WIFI_MAX_STA_CONN  CONFIG_WIFI_MAX_STA_CONN
 #define POC_WIFI_MAX_APS       CONFIG_WIFI_MAX_APS_PER_SCAN
-
-/* FreeRTOS event group to signal when we are connected*/
-static EventGroupHandle_t s_wifi_event_group;
 
 /* Global POC data structure */
 struct poc_data *g_data;
@@ -222,23 +225,20 @@ httpd_uri_t uri_post = {
     .handler  = uri_post_handler,
 };
 
-httpd_handle_t start_webserver(void)
+void start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on address: port: '%d'", config.server_port);
-    httpd_handle_t server;
 
-    if (httpd_start(&server, &config) == ESP_OK) {
+    if (httpd_start(&g_data->server, &config) == ESP_OK) {
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
-        httpd_register_uri_handler(server, &uri_get);
-        httpd_register_uri_handler(server, &uri_post);
-        return server;
+        httpd_register_uri_handler(g_data->server, &uri_get);
+        httpd_register_uri_handler(g_data->server, &uri_post);
+    } else {
+	ESP_LOGI(TAG, "Error starting server!");
     }
-
-    ESP_LOGI(TAG, "Error starting server!");
-    return NULL;
 }
 
 void stop_webserver(httpd_handle_t server)
@@ -247,11 +247,11 @@ void stop_webserver(httpd_handle_t server)
     httpd_stop(server);
 }
 
+/* Only 1 event */
+const int CONNECTED_BIT = BIT0;
 
-static esp_err_t event_handler(void *ctx, system_event_t *event)
+static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 {
-    httpd_handle_t *server = (httpd_handle_t *) ctx;
-
     switch(event->event_id) {
     case SYSTEM_EVENT_AP_STACONNECTED:
         ESP_LOGI(TAG, "station:"MACSTR" join, AID=%d",
@@ -259,10 +259,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
                  event->event_info.sta_connected.aid);
 	
 	// If user phone is connected start webserver
-        if (*server == NULL) {
-		*server = start_webserver();
-	}
-	
+	start_webserver();
 	break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
         ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",
@@ -270,10 +267,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
                  event->event_info.sta_disconnected.aid);
 
         // If the user phone is disconnected stop webserver	
-	if (*server) {
-		stop_webserver(*server);
-		*server = NULL;
-	}
+	stop_webserver(g_data->server);
 	break;
     case SYSTEM_EVENT_STA_START:
 	ESP_LOGI(TAG,"STA_START event\n");
@@ -283,6 +277,8 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 		(char*)event->event_info.disconnected.ssid,
 		event->event_info.disconnected.reason);
 	
+	xEventGroupClearBits(g_data->wifi_event_group, CONNECTED_BIT);
+
 	/* Set code corresponding to the reason for disconnection */
         switch (event->event_info.disconnected.reason) {
         case WIFI_REASON_AUTH_EXPIRE:
@@ -307,6 +303,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 	break;
     case SYSTEM_EVENT_STA_GOT_IP:
 	ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+	xEventGroupSetBits(g_data->wifi_event_group, CONNECTED_BIT);
         break;	
     default:
         break;
@@ -314,15 +311,15 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     return ESP_OK;
 }
 
-void wifi_init_ap_sta(httpd_handle_t *server)
+void wifi_init_ap_sta()
 {
-    s_wifi_event_group = xEventGroupCreate();
+    g_data->wifi_event_group = xEventGroupCreate();
     wifi_config_t *ap = &g_data->wifi_ap_config;
 
     // Initialize TCP/IP stack
     tcpip_adapter_init();
 
-    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, server));
+    ESP_ERROR_CHECK(esp_event_loop_init(wifi_event_handler, NULL));
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
@@ -355,9 +352,70 @@ void wifi_init_ap_sta(httpd_handle_t *server)
              POC_ESP_WIFI_SSID, POC_ESP_WIFI_PASS);
 }
 
+esp_err_t https_event_handler(esp_http_client_event_t *evt)
+{
+    switch(evt->event_id) {
+        case HTTP_EVENT_ERROR:
+            ESP_LOGD(TAG, "HTTP_EVENT_ERROR");
+            break;
+        case HTTP_EVENT_ON_CONNECTED:
+            ESP_LOGD(TAG, "HTTP_EVENT_ON_CONNECTED");
+            break;
+        case HTTP_EVENT_HEADER_SENT:
+            ESP_LOGD(TAG, "HTTP_EVENT_HEADER_SENT");
+            break;
+        case HTTP_EVENT_ON_HEADER:
+            ESP_LOGD(TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
+            break;
+        case HTTP_EVENT_ON_DATA:
+            ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+            break;
+        case HTTP_EVENT_ON_FINISH:
+            ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");
+            break;
+        case HTTP_EVENT_DISCONNECTED:
+            ESP_LOGD(TAG, "HTTP_EVENT_DISCONNECTED");
+            break;
+    }
+    return ESP_OK;
+}
+
+void ota_runner(void * p)
+{
+    ESP_LOGI(TAG, "Starting OTA Runner ...");
+
+    /* Wait for the callback to set the CONNECTED_BIT in the
+       event group.
+    */
+    xEventGroupWaitBits(g_data->wifi_event_group, CONNECTED_BIT,
+                        false, true, portMAX_DELAY);
+    ESP_LOGI(TAG, "Connected to WiFi STA AP! Connecting to OTA server....");
+
+    esp_http_client_config_t config = {
+        .url = CONFIG_FIRMWARE_UPDATE_URL,
+        .cert_pem = (char *)server_cert_pem_start,
+        .event_handler = https_event_handler,
+    };
+
+    ESP_LOGI(TAG, "Free heap: %u\n", xPortGetFreeHeapSize());
+
+    esp_err_t ret = esp_https_ota(&config);
+    if (ret == ESP_OK) {
+        esp_restart();
+    } else {
+        ESP_LOGE(TAG, "FOTA update failed");
+    }
+
+    while (1) {
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
 int app_main()
 {
-    static httpd_handle_t server = NULL;
+    ESP_LOGI(TAG, "POC version v0.1\n");
+
+    ESP_LOGI(TAG, "Free heap: %u\n", xPortGetFreeHeapSize());
 
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
@@ -366,7 +424,7 @@ int app_main()
       ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-    
+
     /* Allocate memory for app data */
     g_data = (struct poc_data *) calloc(1, sizeof(struct poc_data));
     if (!g_data) {
@@ -381,7 +439,9 @@ int app_main()
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_AP_STA");
     // Initialize WiFi interface 
-    wifi_init_ap_sta(&server);
+    wifi_init_ap_sta();
+
+    xTaskCreate(&ota_runner, "ota_runner", 8192, NULL, 5, NULL);
 
     return 0;
 }

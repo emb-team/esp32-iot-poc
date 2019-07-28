@@ -1,0 +1,44 @@
+# esp32-poc (FOTA update)
+ESP32 Proof of concept (FOTA update)
+
+In order to build and test FOTA update functionality the necessary steps should be followed:
+
+1. Generate self-signed certificate and private key for the FOTA update server
+$ openssl req -x509 -newkey rsa:2048 -keyout ca_key.pem -out ca_cert.pem -days 365
+
+NOTE: the Common Name should be the same as host name.
+
+2. Install nginx
+$ sudo apt-get install nginx
+
+3. Copy self-signed certificate to server_certs of esp32-poc directory
+$ cp ca_cert.pem server_certs
+
+4. Copy self-signed certificate and private key to nginx directory
+$ sudo cp -f ca_key.pem ca_cert.pem /etc/nginx/
+
+5. Update nginx configuration adding the following lines in
+$ sudo vim /etc/nginx/nginx.conf
+
+server {
+                listen  443 ssl;
+                ssl_certificate ca_cert.pem;
+                ssl_certificate_key ca_key.pem;
+                ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+                ssl_ciphers         HIGH:!aNULL:!MD5;
+
+                root   /var/lib/nginx;
+
+                location /download/ {
+                        alias /var/lib/nginx/downloads/;
+                }
+}
+
+6. If necessary put the password for private key and add the sl_password_file with location to nginx.conf
+NOTE: This step might be excluded if the password was removed from private key using command:
+$ openssl rsa -in original.key -out plain.key
+
+7. Copy FOTA update binary to /var/lib/nginx/downloads/
+
+8. Start the nginx
+$ sudo service nginx start

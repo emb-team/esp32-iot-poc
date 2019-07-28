@@ -10,12 +10,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "esp_system.h"
-#include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include "esp_http_server.h"
 #include "esp_http_client.h"
 #include "esp_https_ota.h"
 #include "freertos/portable.h"
@@ -38,10 +35,10 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 #define POC_WIFI_MAX_STA_CONN  CONFIG_WIFI_MAX_STA_CONN
 #define POC_WIFI_MAX_APS       CONFIG_WIFI_MAX_APS_PER_SCAN
 
+static const char *TAG = "POC";
+
 /* Global POC data structure */
 struct poc_data *g_data;
-
-static const char *TAG = "POC";
 
 // From auth_mode code to string
 static char* getAuthModeName(wifi_auth_mode_t auth_mode) {
@@ -424,6 +421,10 @@ int app_main()
       ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
+
+    // Initialize and setup UART interface
+    ret = setup_uart();
+    ESP_ERROR_CHECK(ret)
 
     /* Allocate memory for app data */
     g_data = (struct poc_data *) calloc(1, sizeof(struct poc_data));

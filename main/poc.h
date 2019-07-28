@@ -2,6 +2,10 @@
 #define _H_POC_H_
 
 #include "freertos/event_groups.h"
+#include "esp_wifi.h"
+#include "esp_http_server.h"
+
+#include "uart.h"
 
 /**
  * @brief   WiFi STA status
@@ -43,5 +47,8 @@ struct poc_data
     /* Event group to signal */
     EventGroupHandle_t wifi_event_group;
 };
+
+/* Global POC data structure */
+extern struct poc_data *g_data;
 
 #endif /* _H_POC_H_ */

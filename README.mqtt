@@ -1,0 +1,12 @@
+# esp32-poc (MQTT client)
+ESP32 Proof of concept (MQTT client)
+
+In order to test MQTT functionality the necessary steps should be followed:
+
+1. Create PEM certificate for iot.eclipse.org:
+$ openssl s_client -showcerts -connect iot.eclipse.org:8883 </dev/null 2>/dev/null|openssl x509 -outform PEM >iot_eclipse_org.pem
+
+2. Build & run the project
+
+3. Run the test using python
+$ python tests/mqtt_test.py

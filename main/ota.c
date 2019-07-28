@@ -48,12 +48,12 @@ static void ota_runner(void * p)
 {
     ESP_LOGI(TAG, "Starting OTA Runner ...");
 
-    /* Wait for the callback to set the CONNECTED_BIT in the
+    /* Wait for the callback to set the OTA_AVAILABLE_BIT in the
        event group.
     */
-    xEventGroupWaitBits(g_data->wifi_event_group, CONNECTED_BIT,
+    xEventGroupWaitBits(g_data->wifi_event_group, OTA_AVAILABLE_BIT,
                         false, true, portMAX_DELAY);
-    ESP_LOGI(TAG, "Connected to WiFi STA AP! Connecting to OTA server....");
+    ESP_LOGI(TAG, "There is new OTA update! Connecting to OTA server....");
 
     esp_http_client_config_t config = {
         .url = CONFIG_FIRMWARE_UPDATE_URL,
@@ -63,7 +63,14 @@ static void ota_runner(void * p)
 
     ESP_LOGI(TAG, "Free heap: %u\n", xPortGetFreeHeapSize());
 
-    esp_err_t ret = esp_https_ota(&config);
+    // Stop MQTT client
+    esp_err_t ret = esp_mqtt_client_stop(g_data->mqtt_client);
+    if (ret != ESP_OK) {
+	ESP_LOGE(TAG, "Cannot stop MQTT client");
+	esp_restart();
+    }
+
+    ret = esp_https_ota(&config);
     if (ret == ESP_OK) {
         esp_restart();
     } else {

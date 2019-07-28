@@ -11,9 +11,6 @@
 
 static const char *TAG = "WIFI: ";
 
-/* Only 1 event */
-const int CONNECTED_BIT = BIT0;
-
 int wifi_scan_aps(wifi_ap_record_t *ap_records)
 {
     uint16_t ap_num = POC_WIFI_MAX_APS;
@@ -91,7 +88,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 		(char*)event->event_info.disconnected.ssid,
 		event->event_info.disconnected.reason);
 	
-	xEventGroupClearBits(g_data->wifi_event_group, CONNECTED_BIT);
+	xEventGroupClearBits(g_data->wifi_event_group, STA_CONNECTED_BIT);
 
 	/* Set code corresponding to the reason for disconnection */
         switch (event->event_info.disconnected.reason) {
@@ -117,7 +114,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 	break;
     case SYSTEM_EVENT_STA_GOT_IP:
 	ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
-	xEventGroupSetBits(g_data->wifi_event_group, CONNECTED_BIT);
+	xEventGroupSetBits(g_data->wifi_event_group, STA_CONNECTED_BIT);
         break;	
     default:
         break;

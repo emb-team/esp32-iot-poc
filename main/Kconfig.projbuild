@@ -30,4 +30,10 @@ config FIRMWARE_UPDATE_URL
     help
         URL of server which hosts the firmware image.
 
+config BROKER_URI
+    string "Broker URL"
+    default "mqtts://iot.eclipse.org:8883"
+    help
+        URL of an mqtt broker to connect to.
+
 endmenu

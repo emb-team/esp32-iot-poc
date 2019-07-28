@@ -17,6 +17,7 @@
 #include "http_server.h"
 #include "wifi.h"
 #include "ota.h"
+#include "mqtt.h"
 #include "poc.h"
 
 static const char *TAG = "POC";
@@ -40,7 +41,7 @@ int app_main()
 
     // Initialize and setup UART interface
     ret = setup_uart();
-    ESP_ERROR_CHECK(ret)
+    ESP_ERROR_CHECK(ret);
 
     /* Allocate memory for app data */
     g_data = (struct poc_data *) calloc(1, sizeof(struct poc_data));
@@ -57,6 +58,9 @@ int app_main()
     ESP_LOGI(TAG, "ESP_WIFI_MODE_AP_STA");
     // Initialize WiFi interface 
     wifi_init_ap_sta();
+
+    // Start MQTT client
+    ESP_ERROR_CHECK(mqtt_start());
 
     // Setup OTA
     ESP_ERROR_CHECK(setup_ota());

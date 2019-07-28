@@ -7,4 +7,4 @@
 # please read the ESP-IDF documents if you need to do this.
 #
 
-COMPONENT_EMBED_TXTFILES :=  ${PROJECT_PATH}/server_certs/ota_ca_cert.pem
+COMPONENT_EMBED_TXTFILES :=  ${PROJECT_PATH}/server_certs/ota_ca_cert.pem ${PROJECT_PATH}/server_certs/iot_eclipse_org.pem

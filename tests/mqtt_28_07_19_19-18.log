@@ -1,0 +1,235 @@
+--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H ---
+2mI (173) espets Jun  8 2016 00:22:57
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0018,len:4
+load:0x3fff001c,len:6180
+load:0x40078000,len:10180
+ho 0 tail 12 room 4
+load:0x40080400,len:6640
+entry 0x40080760
+I (31) boot: ESP-IDF v3.2-dirty 2nd stage bootloader
+I (31) boot: compile time 18:43:43
+I (31) boot: Enabling RNG early entropy source...
+I (36) boot: SPI Speed      : 40MHz
+I (40) boot: SPI Mode       : DIO
+I (44) boot: SPI Flash Size : 4MB
+I (48) boot: Partition Table:
+I (51) boot: ## Label            Usage          Type ST Offset   Length
+I (59) boot:  0 nvs              WiFi data        01 02 00009000 00004000
+I (66) boot:  1 otadata          OTA data         01 00 0000d000 00002000
+I (74) boot:  2 phy_init         RF data          01 01 0000f000 00001000
+I (81) boot:  3 factory          factory app      00 00 00010000 00100000
+I (89) boot:  4 ota_0            OTA app          00 10 00110000 00100000
+I (96) boot:  5 ota_1            OTA app          00 11 00210000 00100000
+I (104) boot: End of partition table
+I (108) boot: Defaulting to factory image
+I (112) esp_image: segment 0: paddr=0x00010020 vaddr=0x3f400020 size=0x204d0 (132304) map
+I (168) esp_image: segment 1: paddr=0x000304f8 vaddr=0x3ffb0000 size=0x02f24 ( 12068) load
+I (173) esp_image: segment 2: paddr=0x00033424 vaddr=0x40080000 size=0x00400 (  1024) load
+0x40080000: _WindowOverflow4 at /home/evg/projects/esp/esp-idf/components/freertos/xtensa_vectors.S:1779
+                                                                                                                                                     
+I (175) esp_image: segment 3: paddr=0x0003382c vaddr=0x40080400 size=0x0c7e4 ( 51172) load
+I (205) esp_image: segment 4: paddr=0x00040018 vaddr=0x400d0018 size=0x8eaa4 (584356) map
+0x400d0018: _stext at ??:?
+                                                                                                                                                     
+I (410) esp_image: segment 5: paddr=0x000ceac4 vaddr=0x4008cbe4 size=0x05754 ( 22356) load
+0x4008cbe4: uxQueueSpacesAvailable at /home/evg/projects/esp/esp-idf/components/freertos/queue.c:2038
+                                                                                                                                                     
+I (430) boot: Loaded app from partition at offset 0x10000
+I (430) boot: Disabling RNG early entropy source...
+I (430) cpu_start: Pro cpu up.
+I (434) cpu_start: Starting app cpu, entry point is 0x4008108c
+0x4008108c: call_start_cpu1 at /home/evg/projects/esp/esp-idf/components/esp32/cpu_start.c:246
+                                                                                                                                                     
+I (0) cpu_start: App cpu up.
+I (444) heap_init: Initializing. RAM available for dynamic allocation:
+I (451) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (457) heap_init: At 3FFB90F0 len 00026F10 (155 KiB): DRAM
+I (464) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (470) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (476) heap_init: At 40092338 len 0000DCC8 (55 KiB): IRAM
+I (483) cpu_start: Pro cpu start user code
+I (165) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+I (167) POC: POC version v0.1
+                                                                                                                                                     
+I (167) POC: Free heap: 273328
+                                                                                                                                                     
+I (217) POC: ESP_WIFI_MODE_AP_STA
+I (217) wifi: wifi driver task: 3ffc2cdc, prio:23, stack:3584, core=0
+I (217) wifi: wifi firmware version: 9415913
+I (217) wifi: config NVS flash: enabled
+I (227) wifi: config nano formating: disabled
+I (227) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
+I (247) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
+I (267) wifi: Init dynamic tx buffer num: 32
+I (267) wifi: Init data frame dynamic rx buffer num: 32
+I (267) wifi: Init management frame dynamic rx buffer num: 32
+I (277) wifi: Init static rx buffer size: 1600
+I (277) wifi: Init static rx buffer num: 10
+I (277) wifi: Init dynamic rx buffer num: 32
+I (367) phy: phy_version: 4008, c9ae59f, Jan 25 2019, 16:54:06, 0, 0
+I (367) wifi: mode : sta (24:6f:28:de:79:94) + softAP (24:6f:28:de:79:95)
+I (367) wifi: Init max length of beacon: 752/752
+I (367) wifi: Init max length of beacon: 752/752
+I (377) WIFI: : STA_START event
+                                                                                                                                                     
+I (387) WIFI: : wifi_init_ap_sta finished. ssid:TestAP password:nopassword
+I (397) OTA: : Starting OTA Runner ...
+I (29907) wifi: n:1 0, o:1 0, ap:1 1, sta:0 0, prof:1
+I (29907) wifi: station: 70:70:0d:cc:70:23 join, AID=1, bgn, 20
+I (29927) WIFI: : station:70:70:0d:cc:70:23 join, AID=1
+I (29927) HTTP_SERVER: : Starting server on address: port: '80'
+I (29927) HTTP_SERVER: : Registering URI handlers
+I (30037) tcpip_adapter: softAP assign IP to station,IP is: 192.168.4.2
+I (32407) WIFI: : Connecting to AP [PYUR C5A10] ...
+W (34827) httpd_txrx: httpd_sock_err: error in recv : 104
+I (35237) wifi: n:1 1, o:1 0, ap:1 1, sta:1 0, prof:1
+I (36227) wifi: state: init -> auth (b0)
+I (36227) wifi: state: auth -> assoc (0)
+I (36247) wifi: state: assoc -> run (10)
+I (36357) wifi: connected with PYUR C5A10, channel 1
+I (36397) wifi: pm start, type: 1
+
+I (38217) event: sta ip: 192.168.0.6, mask: 255.255.255.0, gw: 192.168.0.1
+I (38217) WIFI: : got ip:192.168.0.6
+I (38217) MQTT: : ESP connected to STA AP! Connecting to MQTT server....
+I (38227) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
+I (38237) MQTT: : Other event id:7
+I (44147) MQTT_CLIENT: Sending MQTT CONNECT message, type: 1, id: 0000
+I (44347) MQTT: : MQTT_EVENT_CONNECTED
+I (44347) MQTT: : sent subscribe successful, msg_id=62033
+I (44757) MQTT: : MQTT_EVENT_SUBSCRIBED, msg_id=62033
+I (52027) UART: : Received: l
+I (52437) MQTT: : MQTT_EVENT_DATA
+I (52437) MQTT: : New FOTA update available! Updating...
+I (52437) OTA: : There is new OTA update! Connecting to OTA server....
+I (52447) OTA: : Free heap: 153724
+                                                                                                                                                     
+I (54457) esp_https_ota: Starting OTA...
+I (54467) esp_https_ota: Writing to partition subtype 16 at offset 0x110000
+I (54487) esp_https_ota: esp_ota_begin succeeded
+I (54487) esp_https_ota: Please Wait. This may take time
+I (63347) UART: : Received: 
+                                                                                                                                                     
+I (64197) UART: : Received: 
+                                                                                                                                                     
+I (64367) esp_https_ota: Connection closed,all data received
+I (64377) esp_image: segment 0: paddr=0x00110020 vaddr=0x3f400020 size=0x1eca8 (126120) map
+I (64477) esp_image: segment 1: paddr=0x0012ecd0 vaddr=0x3ffb0000 size=0x01340 (  4928) 
+I (64487) esp_image: segment 2: paddr=0x00130018 vaddr=0x400d0018 size=0x8a76c (567148) map
+0x400d0018: _stext at ??:?
+                                                                                                                                                     
+I (64917) esp_image: segment 3: paddr=0x001ba78c vaddr=0x3ffb1340 size=0x01be0 (  7136) 
+I (64927) esp_image: segment 4: paddr=0x001bc374 vaddr=0x40080000 size=0x00400 (  1024) 
+0x40080000: _WindowOverflow4 at /home/evg/projects/esp/esp-idf/components/freertos/xtensa_vectors.S:1779
+                                                                                                                                                     
+I (64927) esp_image: segment 5: paddr=0x001bc77c vaddr=0x40080400 size=0x11318 ( 70424) 
+I (64997) esp_image: segment 0: paddr=0x00110020 vaddr=0x3f400020 size=0x1eca8 (126120) map
+I (65087) esp_image: segment 1: paddr=0x0012ecd0 vaddr=0x3ffb0000 size=0x01340 (  4928) 
+I (65097) esp_image: segment 2: paddr=0x00130018 vaddr=0x400d0018 size=0x8a76c (567148) map
+0x400d0018: _stext at ??:?
+                                                                                                                                                     
+I (65517) esp_image: segment 3: paddr=0x001ba78c vaddr=0x3ffb1340 size=0x01be0 (  7136) 
+I (65527) esp_image: segment 4: paddr=0x001bc374 vaddr=0x40080000 size=0x00400 (  1024) 
+0x40080000: _WindowOverflow4 at /home/evg/projects/esp/esp-idf/components/freertos/xtensa_vectors.S:1779
+                                                                                                                                                     
+I (65527) esp_image: segment 5: paddr=0x001bc77c vaddr=0x40080400 size=0x11318 ( 70424) 
+I (65597) esp_https_ota: esp_ota_set_boot_partition succeeded
+I (65597) wifi: state: run -> init (0)
+I (65597) wifi: pm stop, total sleep time: 18413909 us / 32933057 us
+
+I (65617) wifi: n:1 0, o:1 1, ap:1 1, sta:1 0, prof:1
+I (65617) wifi: station: 70:70:0d:cc:70:23 leave, AID = 1, bss_flags is 134259
+I (65617) wifi: n:1 0, o:1 0, ap:1 1, sta:1 0, prof:1
+I (65627) wifi: ieee80211_send_beacon mode switch cause ap destroyed
+I (65657) wifi: flush txq
+I (65657) wifi: stop sw txq
+I (65657) wifi: lmac stop hw txq
+ets Jun  8 2016 00:22:57
+
+rst:0xc (SW_CPU_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0018,len:4
+load:0x3fff001c,len:6180
+load:0x40078000,len:10180
+ho 0 tail 12 room 4
+load:0x40080400,len:6640
+entry 0x40080760
+I (31) boot: ESP-IDF v3.2-dirty 2nd stage bootloader
+I (31) boot: compile time 18:43:43
+I (31) boot: Enabling RNG early entropy source...
+I (36) boot: SPI Speed      : 40MHz
+I (40) boot: SPI Mode       : DIO
+I (44) boot: SPI Flash Size : 4MB
+I (48) boot: Partition Table:
+I (52) boot: ## Label            Usage          Type ST Offset   Length
+I (59) boot:  0 nvs              WiFi data        01 02 00009000 00004000
+I (66) boot:  1 otadata          OTA data         01 00 0000d000 00002000
+I (74) boot:  2 phy_init         RF data          01 01 0000f000 00001000
+I (81) boot:  3 factory          factory app      00 00 00010000 00100000
+I (89) boot:  4 ota_0            OTA app          00 10 00110000 00100000
+I (96) boot:  5 ota_1            OTA app          00 11 00210000 00100000
+I (104) boot: End of partition table
+I (108) esp_image: segment 0: paddr=0x00110020 vaddr=0x3f400020 size=0x1eca8 (126120) map
+I (161) esp_image: segment 1: paddr=0x0012ecd0 vaddr=0x3ffb0000 size=0x01340 (  4928) load
+I (163) esp_image: segment 2: paddr=0x00130018 vaddr=0x400d0018 size=0x8a76c (567148) map
+0x400d0018: _stext at ??:?
+                                                                                                                                                     
+I (366) esp_image: segment 3: paddr=0x001ba78c vaddr=0x3ffb1340 size=0x01be0 (  7136) load
+I (369) esp_image: segment 4: paddr=0x001bc374 vaddr=0x40080000 size=0x00400 (  1024) load
+0x40080000: _WindowOverflow4 at /home/evg/projects/esp/esp-idf/components/freertos/xtensa_vectors.S:1779
+                                                                                                                                                     
+I (373) esp_image: segment 5: paddr=0x001bc77c vaddr=0x40080400 size=0x11318 ( 70424) load
+I (421) boot: Loaded app from partition at offset 0x110000
+I (422) boot: Disabling RNG early entropy source...
+I (422) cpu_start: Pro cpu up.
+I (426) cpu_start: Starting app cpu, entry point is 0x40081018
+0x40081018: start_cpu0_default at /home/evg/projects/esp/esp-idf/components/esp32/cpu_start.c:389
+                                                                                                                                                     
+I (417) cpu_start: App cpu up.
+I (436) heap_init: Initializing. RAM available for dynamic allocation:
+I (443) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (449) heap_init: At 3FFB90F0 len 00026F10 (155 KiB): DRAM
+I (455) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (462) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (468) heap_init: At 40091718 len 0000E8E8 (58 KiB): IRAM
+I (474) cpu_start: Pro cpu start user code
+I (157) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+I (159) POC: POC version v0.2
+                                                                                                                                                     
+I (199) POC: ESP_WIFI_MODE_AP_STA
+I (199) wifi: wifi driver task: 3ffc0e34, prio:23, stack:3584, core=0
+I (199) wifi: wifi firmware version: 9415913
+I (199) wifi: config NVS flash: enabled
+I (209) wifi: config nano formating: disabled
+I (209) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
+I (219) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
+I (249) wifi: Init dynamic tx buffer num: 32
+I (249) wifi: Init data frame dynamic rx buffer num: 32
+I (249) wifi: Init management frame dynamic rx buffer num: 32
+I (249) wifi: Init static rx buffer size: 1600
+I (259) wifi: Init static rx buffer num: 10
+I (259) wifi: Init dynamic rx buffer num: 32
+I (339) phy: phy_version: 4008, c9ae59f, Jan 25 2019, 16:54:06, 0, 0
+I (339) wifi: mode : sta (24:6f:28:de:79:94) + softAP (24:6f:28:de:79:95)
+I (339) wifi: Init max length of beacon: 752/752
+I (349) wifi: Init max length of beacon: 752/752
+I (349) POC: wifi_init_ap_sta finished. ssid:TestAP password:nopassword
+I (349) POC: STA_START event
+                                                                                                                                                     
+I (359) POC: Starting OTA Runner ...
+I (5049) wifi: n:1 0, o:1 0, ap:1 1, sta:0 0, prof:1
+I (5049) wifi: station: 70:70:0d:cc:70:23 join, AID=1, bgn, 20
+I (5069) POC: station:70:70:0d:cc:70:23 join, AID=1
+I (5069) POC: Starting server on address: port: '80'
+I (5069) POC: Registering URI handlers
+I (5419) tcpip_adapter: softAP assign IP to station,IP is: 192.168.4.2
+

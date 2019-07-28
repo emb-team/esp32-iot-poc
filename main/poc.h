@@ -4,6 +4,7 @@
 #include "freertos/event_groups.h"
 #include "esp_log.h"
 #include "esp_http_server.h"
+#include "mqtt_client.h"
 
 #include "wifi.h"
 
@@ -56,9 +57,15 @@ struct poc_data
 
     /* Event group to signal */
     EventGroupHandle_t wifi_event_group;
+
+    /* Mqtt client handle */
+    esp_mqtt_client_handle_t mqtt_client;
 };
 
 /* Global POC data structure */
 extern struct poc_data *g_data;
+
+#define STA_CONNECTED_BIT BIT0
+#define OTA_AVAILABLE_BIT BIT1
 
 #endif /* _H_POC_H_ */

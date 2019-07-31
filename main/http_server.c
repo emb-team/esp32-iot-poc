@@ -21,6 +21,8 @@ static char* getAuthModeName(wifi_auth_mode_t auth_mode) {
 #define RESP_FORM "<form action=\"/\" method=\"post\">" \
         "<label for=\"ssid\">SSID: </label>" \
         "<input name=\"ssid\" id=\"ssid\" value=\"\"><br>" \
+        "<label for=\"user\">Username: </label>" \
+        "<input name=\"user\" id=\"user\" value=\"\"><br>" \
         "<label for=\"pass\">Password: </label>" \
         "<input name=\"pass\" id=\"pass\" value=\"\"><br>" \
         "<button>Send</button></body></html>"
@@ -81,7 +83,8 @@ httpd_uri_t uri_get = {
 static esp_err_t uri_post_handler(httpd_req_t *req)
 {
     char buf[100];
-    char *ssid,*pass;
+    char *ssid, *user, *pass;
+    struct sta_data *s;
     int ret;
 
     memset(buf, 0x0, sizeof(buf));
@@ -104,16 +107,16 @@ static esp_err_t uri_post_handler(httpd_req_t *req)
     }
 
     ssid = ssid + strlen("ssid=");
-    for (pass = ssid; *pass != '\0' && *pass != '&'; pass++)
-	    if (*pass == '+')
-		    *pass = ' ';
+    for (user = ssid; *user != '\0' && *user != '&'; user++)
+	    if (*user == '+')
+		    *user = ' ';
 
-    if (*pass != '&') {
+    if (*user != '&') {
 	httpd_resp_send(req, RESP_FORM, strlen(RESP_FORM));
 	return ESP_FAIL;
     }
 
-    *pass = '\0'; pass++;
+    *user = '\0'; user++;
 
     if (g_data->wifi_sta_state == WIFI_STA_CONNECTING ||
 		g_data->wifi_sta_state == WIFI_STA_CONNECTED) {
@@ -130,6 +133,23 @@ static esp_err_t uri_post_handler(httpd_req_t *req)
 	g_data->wifi_sta_state = WIFI_STA_DISCONNECTED;
     }
 
+    if (strncmp(user, "user=", strlen("user="))) {
+	httpd_resp_send(req, RESP_FORM, strlen(RESP_FORM));
+	return ESP_FAIL;
+    }
+
+    user = user + strlen("user=");
+    for (pass = user; *pass != '\0' && *pass != '&'; pass++)
+	    if (*pass == '+')
+		    *pass = ' ';
+
+    if (*pass != '&') {
+	httpd_resp_send(req, RESP_FORM, strlen(RESP_FORM));
+	return ESP_FAIL;
+    }
+
+    *pass = '\0'; pass++;
+
     if (strncmp(pass, "pass=", strlen("pass="))) {
 	httpd_resp_send(req, RESP_FORM, strlen(RESP_FORM));
 	return ESP_FAIL;
@@ -141,9 +161,21 @@ static esp_err_t uri_post_handler(httpd_req_t *req)
 	return ESP_FAIL;
     }
 
-    if (wifi_connect_sta(ssid, pass) < 0) {
+    s = (struct sta_data *) calloc(1, sizeof(struct sta_data));
+    if (!s) {
+	ESP_LOGE(TAG, "Fail to allocate data for sta_data structure!");
 	return ESP_FAIL;
     }
+
+    strncpy((char*)s->ssid, ssid, sizeof(s->ssid));
+    strncpy((char*)s->user, user, sizeof(s->user));
+    strncpy((char*)s->pass, pass, sizeof(s->pass));
+
+    if (wifi_connect_sta(s) < 0) {
+	return ESP_FAIL;
+    }
+
+    free(s);
 
     snprintf(buf, sizeof(buf),"OK. Connecting to AP ...");
     httpd_resp_send(req, buf, strlen(buf));

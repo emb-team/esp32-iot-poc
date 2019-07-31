@@ -5,6 +5,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "esp_event_loop.h"
+#include "esp_wpa2.h"
 
 #include "http_server.h"
 #include "poc.h"
@@ -31,10 +32,23 @@ int wifi_scan_aps(wifi_ap_record_t *ap_records)
     return ap_num;
 }
 
-
-int wifi_connect_sta(char *ssid, char *pass)
+int wifi_connect_sta(struct sta_data *s)
 {
     wifi_config_t *sta = &g_data->wifi_sta_config;
+    esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
+    uint16_t ap_num; int i;
+    wifi_ap_record_t *ap_records;
+    ap_records = calloc(POC_WIFI_MAX_APS, sizeof(wifi_ap_record_t));
+    if (!ap_records) {
+	ESP_LOGE(TAG, "Not enough memory to satisfy the request!\n");
+	return ESP_FAIL;
+    }
+
+    // Get the list of WiFi APs
+    ap_num = wifi_scan_aps(ap_records);
+    if (ap_num > POC_WIFI_MAX_APS) {
+	return ESP_FAIL;
+    }
 
     memset(sta, 0x0, sizeof(wifi_config_t));
 
@@ -42,10 +56,34 @@ int wifi_connect_sta(char *ssid, char *pass)
     sta->sta.bssid_set = 0;
     sta->sta.listen_interval = 1; // Without increased interval doesn't connect ???
 
-    strncpy((char *)sta->sta.ssid, ssid, sizeof(sta->sta.ssid));
-    strncpy((char *)sta->sta.password, pass, sizeof(sta->sta.password));
+    for(i = 0; i < ap_num; i++) {
+	if (!strncmp((char*)s->ssid, (char*)ap_records[i].ssid, sizeof(s->ssid)))
+		break;
+    }
+
+    if (i == ap_num) {
+	ESP_LOGE(TAG, "Cannot find the AP: %s", s->ssid);
+	return ESP_FAIL;
+    }
+
+    strncpy((char *)sta->sta.ssid, (char *)s->ssid, sizeof(sta->sta.ssid));
+
+    if (ap_records[i].authmode == WIFI_AUTH_WPA2_ENTERPRISE) {
+	ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+	ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_identity(s->user, strlen((char*)s->user)));
+	ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_username(s->user, strlen((char*)s->user)));
+	ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_password(s->pass, strlen((char*)s->pass)));
+    } else {
+	strncpy((char *)sta->sta.password, (char*)s->pass, sizeof(sta->sta.password));
+    }
 
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, sta) );
+
+    if (ap_records[i].authmode == WIFI_AUTH_WPA2_ENTERPRISE) {
+	ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_enable(&config));
+    }
+
+    free(ap_records);
 
     // Restart Wifi (The Mode APSTA should work)
     ESP_ERROR_CHECK(esp_wifi_start());
@@ -57,7 +95,7 @@ int wifi_connect_sta(char *ssid, char *pass)
     }
 
     g_data->wifi_sta_state = WIFI_STA_CONNECTING;
-    ESP_LOGI(TAG, "Connecting to AP [%s] ...", ssid);
+    ESP_LOGI(TAG, "Connecting to AP [%s] ...", s->ssid);
     return 0;
 }
 
@@ -107,15 +145,15 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
 	    g_data->wifi_sta_state = WIFI_STA_DISCONNECTED;
             break;
         default:
-            ESP_LOGI(TAG, "STA connect again");
-            esp_wifi_connect();
+	    ESP_LOGI(TAG, "STA connect again");
+	    esp_wifi_connect();
 	    g_data->wifi_sta_state = WIFI_STA_CONNECTING;
         }
 	break;
     case SYSTEM_EVENT_STA_GOT_IP:
 	ESP_LOGI(TAG, "got ip:%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
 	xEventGroupSetBits(g_data->wifi_event_group, STA_CONNECTED_BIT);
-        break;	
+        break;
     default:
         break;
     }

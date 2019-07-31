@@ -13,7 +13,7 @@ static const char *TAG = "HTTP_SERVER: ";
 // From auth_mode code to string
 static char* getAuthModeName(wifi_auth_mode_t auth_mode) {
 
-	char *names[] = { "OPEN", "WEP", "WPA PSK", "WPA2 PSK", "WPA WPA2 PSK", "MAX" };
+	char *names[] = { "OPEN", "WEP", "WPA PSK", "WPA2 PSK", "WPA WPA2 PSK", "WPA2 INTERPRISE", "MAX" };
 
 	return names[auth_mode];
 }
@@ -29,11 +29,17 @@ static esp_err_t uri_get_handler(httpd_req_t *req)
 {
     char buf[200];
     uint16_t ap_num;
-    wifi_ap_record_t ap_records[POC_WIFI_MAX_APS];
+    wifi_ap_record_t *ap_records;
+    ap_records = calloc(POC_WIFI_MAX_APS, sizeof(wifi_ap_record_t));
+    if (!ap_records) {
+	ESP_LOGE(TAG, "Not enough memory to satisfy the request!\n");
+	return ESP_FAIL;
+    }
 
     // Get the list of WiFi APs
     ap_num = wifi_scan_aps(ap_records);
-    if (ap_num >= POC_WIFI_MAX_APS) {
+    if (ap_num > POC_WIFI_MAX_APS) {
+	ESP_LOGE(TAG, "List of scanned WiFi APs is too big!");
 	return ESP_FAIL;
     }
 
@@ -43,7 +49,12 @@ static esp_err_t uri_get_handler(httpd_req_t *req)
     httpd_resp_send_chunk(req, buf, strlen(buf));
 
     for(int i = 0; i < ap_num; i++) {
-	snprintf(buf, sizeof(buf), "<tr><td>%s</td><td>%d</td><td>%d</td><td>%s</td></tr>", 
+	ESP_LOGD(TAG, "SSID: %s auth %d",(char *)ap_records[i].ssid,ap_records[i].authmode);
+	if (ap_records[i].authmode == WIFI_AUTH_MAX) {
+		ESP_LOGE(TAG, "Wifi mode for SSID %s is unknown!\n", (char *)ap_records[i].ssid);
+		return ESP_FAIL;
+	}
+	snprintf(buf, sizeof(buf), "<tr><td>%s</td><td>%d</td><td>%d</td><td>%s</td></tr>",
 			(char *)ap_records[i].ssid, ap_records[i].primary, ap_records[i].rssi,
 			getAuthModeName(ap_records[i].authmode));
 	httpd_resp_send_chunk(req, buf, strlen(buf));
@@ -55,6 +66,9 @@ static esp_err_t uri_get_handler(httpd_req_t *req)
     /* Respond with the accumulated value */
     httpd_resp_send_chunk(req, RESP_FORM, strlen(RESP_FORM));
     httpd_resp_send_chunk(req, NULL, 0);
+
+    free(ap_records);
+
     return ESP_OK;
 }
 
